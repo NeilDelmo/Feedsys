@@ -15,9 +15,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Use no prefix on DigitalOcean (because DO strips /api from the path), 
+// but use /api on your local machine (Laragon)
+const prefix = process.env.DATABASE_URL ? '' : '/api';
+
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5177', 'http://localhost:8080'], // Vite dev ports and PHP server
+  origin: '*', // More flexible for deployment
   credentials: true
 }));
 app.use(express.json());
@@ -30,10 +34,11 @@ app.use((req, res, next) => {
 });
 
 // Test database connection
-app.get('/health', async (req, res) => {
+// Accessible at: .../api/health
+app.get(`${prefix}/health`, async (req, res) => {
   try {
     const connection = await pool.getConnection();
-    const [result] = await connection.query('SELECT 1');
+    await connection.query('SELECT 1');
     connection.release();
     res.json({ status: 'ok', message: 'Database connected' });
   } catch (error) {
@@ -42,12 +47,12 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// Routes
-app.use('/api/auth', authRouter);
-app.use('/api/users', usersRouter);
-app.use('/api/students', studentsRouter);
-app.use('/api/measurements', measurementsRouter);
-app.use('/api/attendance', attendanceRouter);
+// Routes using the smart prefix
+app.use(`${prefix}/auth`, authRouter);
+app.use(`${prefix}/users`, usersRouter);
+app.use(`${prefix}/students`, studentsRouter);
+app.use(`${prefix}/measurements`, measurementsRouter);
+app.use(`${prefix}/attendance`, attendanceRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -67,12 +72,6 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Feed System API running on http://localhost:${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log('Available routes:');
-  console.log('  POST /api/auth/login');
-  console.log('  GET /api/users');
-  console.log('  GET /api/students');
-  console.log('  GET /api/measurements');
-  console.log('  GET /api/attendance');
+  console.log(`Feed System API running on PORT: ${PORT}`);
+  console.log(`Prefix being used: "${prefix}"`);
 });
