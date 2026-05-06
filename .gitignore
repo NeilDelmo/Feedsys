@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.history/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Backend specific (if not handled by backend/.gitignore)
+backend/node_modules/
+backend/.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database/Seed data (optional, but often kept in repo if small)
+# seed_data.sql
+
+# Laragon specific
+.php-preview-router.php
