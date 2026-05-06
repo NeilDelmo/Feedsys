@@ -382,6 +382,5 @@ window.app = {
     exportPDF,
     loadUser,
     getRecentActivities,
-    toast
 };
 
